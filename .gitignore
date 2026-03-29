@@ -1,0 +1,18 @@
+# Ignorer les données
+data/raw/
+data/processed/
+*.csv
+*.parquet
+
+# Ignorer les modèles sauvegardés (si trop lourds)
+*.pkl
+*.joblib
+
+# Ignorer les environnements virtuels
+venv/
+env/
+.env
+
+# Fichiers systèmes
+.DS_Store
+__pycache__/
