@@ -1,6 +1,5 @@
 # Ignorer les données
-data/raw/
-data/processed/
+data/
 *.csv
 *.parquet
 
