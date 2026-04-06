@@ -1,5 +1,5 @@
 # Ignorer les données
-data/
+data/dataset
 *.csv
 *.parquet
 
