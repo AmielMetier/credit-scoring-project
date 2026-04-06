@@ -21,7 +21,9 @@ client_id = st.selectbox("Rechercher un numéro de dossier client :", liste_id_c
 st.subheader(f"Dossier en cours : Client N° {client_id}")
 
 donnees_client_brutes = df_clients.loc[client_id].values
-client_propre = [float(valeur) for valeur in donnees_client_brutes]
+client_propre = []
+for valeur in donnees_client_brutes:
+    client_propre.append(float(valeur))
 
 donnees_pour_api = {
   "features": client_propre
