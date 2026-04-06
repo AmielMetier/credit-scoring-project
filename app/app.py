@@ -56,3 +56,18 @@ if st.button("Lancer l'analyse de risque", use_container_width=True):
                 
         except requests.exceptions.ConnectionError:
             st.error("Impossible de joindre l'API. N'oubliez pas de lancer l'API avant.")
+
+#Graphique
+st.divider()
+st.subheader("Analyse détaillée du profil")
+st.write("Comparez ce client avec la moyenne de la base de données :")
+    
+liste_colonnes = df_clients.columns.tolist()[1:]
+colonne_choisie = st.selectbox("Sélectionnez le critère à analyser :", liste_colonnes)
+    
+valeur_client = df_clients.loc[client_id, colonne_choisie]
+valeur_moyenne = df_clients[colonne_choisie].median()
+    
+df_graphique = pd.DataFrame({"Valeur": [valeur_client, valeur_moyenne]}, index=[f"Client {client_id}", "Moyenne Globale"])
+    
+st.bar_chart(df_graphique)
