@@ -1,42 +1,96 @@
 # Credit Scoring & Risk Analysis Dashboard
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Scikit--Learn%20%7C%20LightGBM-orange)
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Scikit--Learn-orange)
+![API](https://img.shields.io/badge/API-FastAPI-009688)
 ![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-red)
 ![Finance](https://img.shields.io/badge/Domain-Retail%20Banking-green)
 
-## Contexte du Projet
+## Contexte du projet
 
-Ce projet a été réalisé dans le cadre d'un projet personnel de 3 semaines. En tant qu'étudiant Ingénieur en Mathématiques Appliquées, l'objectif est d'illustrer mes compétences en **Data Analyse et Machine Learning appliquées aux problématiques bancaires**. 
+Projet personnel réalisé en tant qu'étudiant ingénieur en Mathématiques Appliquées (Polytech Nice Sophia, spécialité IMAFA).
 
-L'octroi de crédit est au cœur du métier de la banque de détail. Ce projet vise à construire un modèle prédictif capable d'évaluer le risque de défaut de paiement d'un client, tout en garantissant l'**explicabilité** de la décision (une exigence réglementaire et métier stricte en finance).
+L'objectif est de construire un modèle qui estime le risque de défaut de paiement d'un client qui demande un crédit. Le modèle doit rester **explicable**, car en banque il faut pouvoir justifier un refus.
 
 ## Objectifs
 
-1. **Analyse Exploratoire (EDA) :** Comprendre les variables socio-démographiques et financières qui influencent le défaut de paiement.
-2. **Modélisation Prédictive :** Développer un modèle de classification robuste (optimisé sur le score AUC-ROC pour gérer le déséquilibre des classes).
-3. **Explicabilité (SHAP) :** Interpréter les décisions du modèle pour comprendre le poids de chaque variable dans le score final.
-4. **Déploiement :** Créer une interface interactive (Dashboard) permettant à un conseiller bancaire de simuler une demande de crédit en temps réel.
+1. **Analyse exploratoire :** comprendre les données et les variables liées au défaut de paiement.
+2. **Modélisation :** comparer plusieurs modèles de classification avec l'AUC-ROC (les classes sont très déséquilibrées).
+3. **Explicabilité :** regarder les coefficients de la régression logistique pour voir quelles variables pèsent le plus.
+4. **Déploiement :** mettre le modèle dans une API et créer un dashboard pour qu'un conseiller puisse analyser un dossier client.
 
 ## Données
 
-Les données proviennent de la compétition Kaggle **[Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk/data)**. 
-*Note : Pour des raisons de taille et de confidentialité, les datasets bruts ne sont pas versionnés sur ce dépôt.*
+Les données viennent de la compétition Kaggle **[Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk/data)** (fichier `application_train.csv`, environ 307 000 clients et 122 variables).
 
-## Stack Technique & Méthodologie
+Les données brutes sont trop lourdes pour GitHub. Il faut les télécharger et les mettre dans `data/dataset/`.
+
+## Résultats
+
+| Modèle | AUC | Recall (mauvais payeurs) |
+|---|---|---|
+| **Régression logistique** (retenue) | **0.75** | **67 %** |
+| Random Forest | 0.73 | 61 % |
+
+La régression logistique est meilleure ici, plus rapide, et plus facile à expliquer. C'est donc le modèle utilisé dans l'API.
+
+<!-- Ajouter une capture du dashboard ici : ![Dashboard](images/dashboard.png) -->
+
+## Stack technique
 
 * **Langage :** Python
-* **Manipulation & Analyse :** Pandas, NumPy
-* **Data Visualisation :** Matplotlib, Seaborn, Plotly
-* **Machine Learning :** Scikit-Learn, LightGBM / Random Forest
-* **Interprétabilité :** SHAP (SHapley Additive exPlanations)
-* **Web App & Déploiement :** Streamlit
+* **Analyse :** Pandas, NumPy
+* **Visualisation :** Matplotlib, Seaborn
+* **Machine Learning :** Scikit-Learn (régression logistique, Random Forest)
+* **API :** FastAPI
+* **Dashboard :** Streamlit
 
-## Structure du Projet
+## Structure du projet
 
-├── app/ # Code source du dashboard Streamlit
-├── data/ # Données brutes et processées (ignorées par Git)
-├── notebooks/ # Notebooks Jupyter (EDA et modélisation)
-├── src/ # Scripts Python (nettoyage, feature engineering)
-├── README.md # Description du projet
-└── requirements.txt # Dépendances du projet
+```
+├── api/
+│   └── main.py          # API FastAPI qui renvoie le score d'un client
+├── app/
+│   └── app.py           # Dashboard Streamlit
+├── data/
+│   ├── dataset/         # Données brutes Kaggle (non versionnées)
+│   ├── echantillon_clients.csv          # 50 clients de test pour le dashboard
+│   ├── modele_credit_scoring.joblib     # Modèle entraîné
+│   └── scaler_credit_scoring.joblib     # Scaler entraîné
+├── notebooks/
+│   ├── 01_exploration_nettoyage_encodage.ipynb
+│   └── 02_modelisation.ipynb
+├── requirements.txt
+└── README.md
+```
+
+## Lancer le projet
+
+1. Installer les dépendances :
+```bash
+pip install -r requirements.txt
+```
+
+2. Lancer l'API (dans un premier terminal) :
+```bash
+uvicorn api.main:app --reload
+```
+
+3. Lancer le dashboard (dans un deuxième terminal) :
+```bash
+streamlit run app/app.py
+```
+
+Le modèle entraîné est déjà dans `data/`, donc pas besoin de relancer les notebooks pour tester le dashboard. Pour réentraîner le modèle, il faut télécharger les données Kaggle puis lancer les deux notebooks dans l'ordre.
+
+## Limites et pistes d'amélioration
+
+* Le score renvoyé n'est pas une vraie probabilité de défaut (à cause du `class_weight='balanced'`). Il faudrait le calibrer.
+* Le seuil de 50 % est arbitraire. En vrai, il faudrait le choisir selon le coût d'un mauvais payeur accepté vs un bon client refusé.
+* Les valeurs manquantes sont remplacées par la médiane avant la séparation train/test. Il faudrait le faire seulement sur le train.
+* Seul le fichier `application_train` est utilisé. Les autres tables Kaggle (historique de crédit, etc.) pourraient améliorer le modèle.
+* Tester d'autres modèles (LightGBM) et utiliser SHAP pour expliquer chaque décision individuellement.
+
+## Auteur
+
+Amiel Metier – [GitHub](https://github.com/AmielMetier)
