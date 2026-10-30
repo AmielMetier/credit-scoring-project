@@ -1,8 +1,12 @@
-# Ignorer les données
+# Ignorer les données brutes (trop lourdes, à télécharger sur Kaggle)
 data/dataset/
 *.parquet
-
 
 # Fichiers systèmes
 .DS_Store
 __pycache__/
+.ipynb_checkpoints/
+
+# Environnement virtuel
+venv/
+.venv/
